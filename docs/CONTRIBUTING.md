@@ -69,7 +69,7 @@ For a detailed architecture overview, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 - **Go** 1.21+
 - **Node.js** 18+ and npm
-- **GitHub account** - OAuth is the preferred authentication method (recommended). Alternatively, you can use a Personal Access Token with `notifications` and `repo` scopes ([create one here](https://github.com/settings/tokens))
+- **GitHub account** - OAuth is the preferred authentication method (recommended). Alternatively, you can use a Personal Access Token with `repo`, `notifications`, and `discussions` (read) scopes ([create one here](https://github.com/settings/tokens))
 
 No external dependencies required - Octobud uses SQLite and runs as a single desktop application binary.
 

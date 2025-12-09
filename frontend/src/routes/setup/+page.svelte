@@ -448,16 +448,17 @@
 									<div class="mt-4 space-y-3">
 										<p class="text-xs text-gray-500 dark:text-gray-400">
 											Token needs <code
-												class="text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded"
-												>notifications</code
-											>
-											and
+												class="text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">repo</code
+											>,
 											<code class="text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded"
-												>repo</code
+												>notifications</code
+											>, and
+											<code class="text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded"
+												>read:discussions</code
 											>
 											scopes.
 											<a
-												href="https://github.com/settings/tokens/new?scopes=notifications,repo&description=Octobud"
+												href="https://github.com/settings/tokens/new?scopes=repo,notifications,read:discussions&description=Octobud"
 												target="_blank"
 												rel="noopener noreferrer"
 												class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"

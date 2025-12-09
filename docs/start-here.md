@@ -6,7 +6,7 @@ This guide covers your first 5 minutes with Octobud: configuring your initial sy
 
 When you first launch Octobud, you'll be guided through two steps:
 
-1. **Connect GitHub** - Connect your GitHub account. OAuth is the preferred method (recommended), or you can use a Personal Access Token as an alternative. Both require `notifications` and `repo` scopes.
+1. **Connect GitHub** - Connect your GitHub account. OAuth is the preferred method (recommended), or you can use a Personal Access Token as an alternative. Both require `repo`, `notifications`, and `discussions` (read) scopes.
 2. **Configure Initial Sync** - Set how far back Octobud should sync your existing GitHub notifications.
 
 ## Initial Sync

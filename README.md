@@ -128,7 +128,7 @@ Open `http://localhost:5173`
 
 When you first launch Octobud, you'll be guided through setup:
 
-1. **Connect GitHub** - You'll be prompted to connect your GitHub account. OAuth is the preferred method (recommended), or you can use a Personal Access Token as an alternative. Both require `notifications` and `repo` scopes. You can update your authentication method later in Settings → Account.
+1. **Connect GitHub** - You'll be prompted to connect your GitHub account. OAuth is the preferred method (recommended), or you can use a Personal Access Token as an alternative. Both require `repo`, `notifications`, and `discussions` (read) scopes. You can update your authentication method later in Settings → Account.
 
 2. **Configure Initial Sync** - Next, you'll be prompted to configure how far back to sync notifications. Start small (30 days) - you can always [sync more later](docs/start-here.md#syncing-more-later).
 

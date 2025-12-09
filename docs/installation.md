@@ -29,7 +29,7 @@ When you first launch Octobud:
 
 1. **Menu Bar Icon** - Octobud appears in your menu bar (top right on macOS)
 2. **Browser Opens** - Your default browser opens to `http://localhost:8808`
-3. **Connect GitHub** - You'll be prompted to connect your GitHub account. OAuth is the preferred method (recommended), or you can use a Personal Access Token as an alternative. Both require `notifications` and `repo` scopes.
+3. **Connect GitHub** - You'll be prompted to connect your GitHub account. OAuth is the preferred method (recommended), or you can use a Personal Access Token as an alternative. Both require `repo`, `notifications`, and `discussions` (read) scopes.
 4. **Configure Initial Sync** - After connecting GitHub, you'll be prompted to configure how far back to sync your existing notifications. We recommend starting with 30 days - you can always sync more later from Settings → Data.
 
 ## Menu Bar
@@ -81,7 +81,7 @@ Octobud supports two methods for authenticating with GitHub:
 1. **OAuth (Recommended)** - Connect your GitHub account directly through GitHub's OAuth flow. This is the preferred method as it's more secure and easier to set up.
 2. **Personal Access Token (Alternative)** - Use a GitHub Personal Access Token if you prefer not to use OAuth.
 
-Both methods require `notifications` and `repo` scopes.
+Both methods require `repo`, `notifications`, and `discussions` (read) scopes.
 
 #### During Initial Setup
 
@@ -93,7 +93,7 @@ You can change your GitHub authentication method at any time:
 
 1. Go to Settings → Account
 2. For OAuth: Click "Connect with GitHub" to start the OAuth flow
-3. For Personal Access Token: Paste your token (needs `notifications` and `repo` scopes) and click Save
+3. For Personal Access Token: Paste your token (needs `repo`, `notifications`, and `discussions` (read) scopes) and click Save
 
 #### Token Storage
 
@@ -162,7 +162,7 @@ log show --predicate 'process == "octobud"' --last 1h
 ### Sync Not Working
 
 - Verify GitHub token is configured in Settings → Account
-- Check the token has `notifications` and `repo` scopes
+- Check the token has `repo`, `notifications`, and `discussions` (read) scopes
 - Check logs for error messages (see Logs section above)
 
 ### Database Issues
