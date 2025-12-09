@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.1.3] - 2025-12-09
+
+- Small big fixes around subject urls
+- Fix discussion timeline fetching (working now!)
+
 ## [0.1.2] - 2025-12-09
 
 - Fix update check version resolution when doing manual checks
