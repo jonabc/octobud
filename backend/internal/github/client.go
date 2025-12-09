@@ -458,8 +458,10 @@ type DiscussionCommentsResponse struct {
 			Comments struct {
 				Nodes    []DiscussionComment `json:"nodes"`
 				PageInfo struct {
-					HasNextPage bool   `json:"hasNextPage"`
-					EndCursor   string `json:"endCursor"`
+					HasNextPage     bool   `json:"hasNextPage"`
+					EndCursor       string `json:"endCursor"`
+					HasPreviousPage bool   `json:"hasPreviousPage"`
+					StartCursor     string `json:"startCursor"`
 				} `json:"pageInfo"`
 			} `json:"comments"`
 		} `json:"discussion"`
@@ -475,11 +477,14 @@ func (c *clientImpl) FetchDiscussionComments( //nolint:gocritic // Prefer in-lin
 	after string, // cursor for pagination
 ) ([]types.TimelineEvent, bool, string, error) {
 	// GraphQL query to fetch discussion comments
+	// We use `last` instead of `first` to get the most recent comments first.
+	// Comments are returned in chronological order (oldest to newest) by default,
+	// so using `last` gives us the newest comments.
 	query := `
-		query GetDiscussionComments($owner: String!, $repo: String!, $number: Int!, $first: Int!, $after: String) {
+		query GetDiscussionComments($owner: String!, $repo: String!, $number: Int!, $last: Int!, $before: String) {
 			repository(owner: $owner, name: $repo) {
 				discussion(number: $number) {
-					comments(first: $first, after: $after, orderBy: {field: CREATED_AT, direction: DESC}) {
+					comments(last: $last, before: $before) {
 						nodes {
 							id
 							body
@@ -492,6 +497,8 @@ func (c *clientImpl) FetchDiscussionComments( //nolint:gocritic // Prefer in-lin
 							url
 						}
 						pageInfo {
+							hasPreviousPage
+							startCursor
 							hasNextPage
 							endCursor
 						}
@@ -505,10 +512,12 @@ func (c *clientImpl) FetchDiscussionComments( //nolint:gocritic // Prefer in-lin
 		"owner":  owner,
 		"repo":   repo,
 		"number": number,
-		"first":  first,
+		"last":   first, // Use 'last' parameter, but keep the variable name as 'first' for compatibility
 	}
 	if after != "" {
-		variables["after"] = after
+		// When using 'last', we use 'before' instead of 'after' for reverse pagination
+		// The 'after' parameter from the caller will be treated as 'before' for reverse pagination
+		variables["before"] = after
 	}
 
 	reqBody := GraphQLRequest{
@@ -579,15 +588,25 @@ func (c *clientImpl) FetchDiscussionComments( //nolint:gocritic // Prefer in-lin
 	}
 
 	comments := data.Repository.Discussion.Comments.Nodes
-	hasNextPage := data.Repository.Discussion.Comments.PageInfo.HasNextPage
-	endCursor := data.Repository.Discussion.Comments.PageInfo.EndCursor
+	pageInfo := data.Repository.Discussion.Comments.PageInfo
+
+	// When using 'last', we get hasPreviousPage and startCursor for reverse pagination
+	// But we return hasNextPage and endCursor for compatibility with the existing interface
+	// hasNextPage means there are more OLDER comments to load
+	hasNextPage := pageInfo.HasPreviousPage
+	// For reverse pagination, endCursor is the startCursor (pointing to the oldest comment in this batch)
+	endCursor := pageInfo.StartCursor
 
 	// Convert DiscussionComment to TimelineEvent
+	// Note: When using 'last', comments are returned in chronological order (oldest to newest)
+	// So the first comment in the array is the oldest, and the last is the newest.
+	// We reverse the order so newest comments come first, matching the expected timeline order.
 	timelineEvents := make([]types.TimelineEvent, len(comments))
-	for i, comment := range comments {
+	for i := len(comments) - 1; i >= 0; i-- {
+		comment := comments[i]
 		createdAt := comment.CreatedAt
 		updatedAt := comment.UpdatedAt
-		timelineEvents[i] = types.TimelineEvent{
+		timelineEvents[len(comments)-1-i] = types.TimelineEvent{
 			Event:     "commented",
 			ID:        json.RawMessage(fmt.Sprintf(`%q`, comment.ID)),
 			CreatedAt: &createdAt,
