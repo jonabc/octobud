@@ -37,7 +37,7 @@ func (s *service) RestartApp(ctx context.Context, baseURL string) error {
 }
 
 // ActivateBrowserTab is a no-op on non-macOS platforms.
-func (s *service) ActivateBrowserTab(ctx context.Context, browser string, url string, navigateTo string) (bool, error) {
+func (s *service) ActivateBrowserTab(ctx context.Context, browser, url, navigateTo string) (bool, error) {
 	return false, nil
 }
 
