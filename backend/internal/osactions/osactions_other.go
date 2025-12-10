@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// Package osactions provides a service for performing OS-specific actions.
 package osactions
 
 import (
@@ -37,7 +38,10 @@ func (s *service) RestartApp(ctx context.Context, baseURL string) error {
 }
 
 // ActivateBrowserTab is a no-op on non-macOS platforms.
-func (s *service) ActivateBrowserTab(ctx context.Context, browser, url, navigateTo string) (bool, error) {
+func (s *service) ActivateBrowserTab(
+	ctx context.Context,
+	browser, url, navigateTo string,
+) (bool, error) {
 	return false, nil
 }
 
