@@ -33,7 +33,7 @@ func NewService() Service {
 }
 
 // RestartApp is a no-op on non-macOS platforms.
-func (s *service) RestartApp(ctx context.Context, baseURL string) error {
+func (s *service) RestartApp(ctx context.Context) error {
 	return fmt.Errorf("restart not supported on this platform")
 }
 

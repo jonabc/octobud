@@ -23,10 +23,9 @@ import "context"
 // On macOS, this uses AppleScript. On other platforms, it provides no-op implementations.
 type Service interface {
 	// RestartApp quits the current application and launches the installed app.
-	// If baseURL is provided, after restart it will attempt to find and refresh
-	// an existing browser tab with that URL instead of opening a new one.
+	// The app's startup code will handle checking for existing browser tabs.
 	// Returns an error if the restart fails.
-	RestartApp(ctx context.Context, baseURL string) error
+	RestartApp(ctx context.Context) error
 
 	// ActivateBrowserTab attempts to find and activate a browser tab with the given URL.
 	// browser should be "safari" or "chrome".

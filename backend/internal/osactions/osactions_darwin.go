@@ -24,6 +24,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+	"syscall"
 )
 
 // appPath is the path to the installed Octobud application on macOS.
@@ -39,7 +40,7 @@ func NewService() Service {
 
 // RestartApp quits the current application and launches the installed app.
 // The app's startup code will handle checking for existing tabs.
-func (s *service) RestartApp(ctx context.Context, baseURL string) error {
+func (s *service) RestartApp(ctx context.Context) error {
 	// Simple restart - the app will check for existing tabs on startup
 	script := fmt.Sprintf(`tell application "Octobud"
 	quit
@@ -49,15 +50,38 @@ tell application "%s"
 	activate
 end tell`, appPath)
 
-	// Run in background so HTTP response can return
-	//nolint:gosec // G204: osascript is a standard macOS utility, the script variable is controlled
-	cmd := exec.CommandContext(ctx, "osascript", "-e", script)
+	// We intentionally use exec.Command (not CommandContext) because we need the restart
+	// process to run independently of any context. Using CommandContext would cause the
+	// process to be killed when the context is canceled, which happens when the HTTP
+	// request completes. Since this process needs to survive past the HTTP response
+	// (it quits and restarts the app), we must not tie it to any context.
+	//
+	// We wrap the osascript command in a shell that runs it in the background with
+	// output redirected, ensuring it's fully detached from the parent process.
+	// This way, even if the parent process (this Go binary) is killed by the "quit"
+	// command, the osascript process will continue running.
+	// Escape the script for shell execution - replace single quotes with a shell-safe escape sequence
+	escapedScript := strings.ReplaceAll(script, "'", "'\"'\"'")
+	shellCmd := fmt.Sprintf("osascript -e '%s' > /dev/null 2>&1 &", escapedScript)
+	//nolint:gosec,noctx
+	// G204: shellCmd is constructed from controlled input (hardcoded script template + appPath constant).
+	// noctx: We intentionally avoid context here so the restart process isn't canceled.
+	cmd := exec.Command("sh", "-c", shellCmd)
+
+	// Create a new process group so the shell (and its children) survive parent termination
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Setpgid: true,
+	}
+
+	// Redirect stdin to avoid any potential issues
+	cmd.Stdin = nil
+
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("failed to start restart script: %w", err)
 	}
 
 	// Don't wait for completion - let it run in background
-	// The script will handle the quit and relaunch
+	// The script will handle the quit and relaunch independently
 	return nil
 }
 

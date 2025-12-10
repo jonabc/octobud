@@ -21,20 +21,23 @@ jobs:
         working-directory: ./backend
         run: make install-tools
 
-      - name: Check Go formatting
+      - name: Check formatting
         working-directory: ./backend
         run: |
-          # Run format to auto-fix what can be fixed
+          # Run format to auto-fix any formatting issues
           make format
-          # Check if there are any remaining unformatted files (gofmt)
-          unformatted=$(gofmt -l .)
-          if [ -n "$unformatted" ]; then
-            echo "The following files are not formatted:"
-            echo "$unformatted"
+          # Check if any files were modified
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Error: The following files need formatting:"
+            git status --porcelain
+            echo ""
+            echo "Run 'make format' locally to fix these issues."
             exit 1
           fi
-          # Check golangci-lint formatting (golines, etc.) - this will catch any remaining issues
-          make lint
+
+      - name: Check linting
+        working-directory: ./backend
+        run: make lint
 
   backend-test:
     runs-on: ubuntu-latest
@@ -77,13 +80,6 @@ jobs:
         env:
           CGO_ENABLED: 1
         run: go test -tags=test,integration -v ./integration/...
-
-      - name: Run linter
-        uses: golangci/golangci-lint-action@v7.0.1
-        with:
-          version: v2.7.0
-          working-directory: ./backend
-          args: --timeout=5m
 
   frontend-format:
     runs-on: ubuntu-latest

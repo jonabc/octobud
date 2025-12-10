@@ -16,10 +16,9 @@
 package user
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 
@@ -273,40 +272,35 @@ func (h *Handler) HandleRestart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract baseURL from request (Origin or Referer header)
-	// This allows us to find and refresh existing tabs after restart
-	baseURL := r.Header.Get("Origin")
-	if baseURL == "" {
-		baseURL = r.Header.Get("Referer")
-		// If Referer is a full URL, extract just the origin
-		if baseURL != "" {
-			if parsedURL, err := url.Parse(baseURL); err == nil {
-				baseURL = fmt.Sprintf("%s://%s", parsedURL.Scheme, parsedURL.Host)
-			}
-		}
-	}
-
-	// Use OS actions service to restart the app
-	ctx := r.Context()
-	if err := h.osActionsSvc.RestartApp(ctx, baseURL); err != nil {
-		// Check if it's a platform not supported error
-		if strings.Contains(err.Error(), "not supported") {
-			helpers.WriteError(
-				w,
-				http.StatusNotImplemented,
-				"Restart not supported on this platform",
-			)
-			return
-		}
-		h.logger.Error("failed to restart app", zap.Error(err))
-		helpers.WriteError(w, http.StatusInternalServerError, "Failed to restart")
-		return
-	}
-
+	// Write and flush the response first to ensure the client receives it
+	// before the app restarts (which will close the connection)
 	response := RestartResponse{
 		Status:  "restarting",
 		Message: "Octobud will restart shortly",
 	}
 
 	helpers.WriteJSON(w, http.StatusOK, response)
+
+	// Flush the response to ensure the client receives it before the app restarts
+	if flusher, ok := w.(http.Flusher); ok {
+		flusher.Flush()
+	}
+
+	// Start the restart in a goroutine with a small delay to ensure
+	// the HTTP response is fully sent to the client first.
+	// We use a background context so the restart process isn't canceled
+	// when the HTTP request context is canceled.
+	go func() {
+		// Small delay to ensure response is sent
+		time.Sleep(100 * time.Millisecond)
+		// Use background context so restart isn't canceled when request completes
+		if err := h.osActionsSvc.RestartApp(context.Background()); err != nil {
+			// Check if it's a platform not supported error
+			if strings.Contains(err.Error(), "not supported") {
+				h.logger.Warn("restart not supported on this platform")
+				return
+			}
+			h.logger.Error("failed to restart app in background", zap.Error(err))
+		}
+	}()
 }

@@ -255,12 +255,13 @@ export function createUpdateStore() {
 		startPolling();
 		// Check for restart needed on startup
 		await checkRestartNeeded();
-		// Set up periodic check for version mismatch (every 5 minutes)
+		// Set up periodic check for version mismatch (every 30 seconds)
+		// This allows the restart banner to appear quickly after an update is installed
 		restartCheckIntervalId = setInterval(
 			() => {
 				void checkRestartNeeded();
 			},
-			5 * 60 * 1000
+			30 * 1000 // 30 seconds
 		);
 	}
 
