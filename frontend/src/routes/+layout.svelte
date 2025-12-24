@@ -87,6 +87,7 @@
 	import { getSWHealthStore } from "$lib/stores/swHealthStore";
 	import { setupServiceWorkerHandlers } from "$lib/utils/serviceWorkerMessageHandler";
 	import { NavigationEventSource } from "$lib/api/navigation";
+	import { initializeFavicon, updateFaviconBadge } from "$lib/utils/faviconBadge";
 
 	// Props
 	export let data: LayoutData;
@@ -742,6 +743,21 @@
 				const unreadCount = inboxView?.unreadCount ?? 0;
 				return unreadCount > 0 ? `Octobud (${unreadCount})` : "Octobud";
 			})();
+
+	// ============================================================================
+	// FAVICON BADGE
+	// ============================================================================
+
+	// Initialize favicon on mount
+	if (browser) {
+		initializeFavicon();
+	}
+
+	// Update favicon badge whenever unread count changes
+	$: if (browser && !isLoginRoute && !isSetupRoute) {
+		const unreadCount = inboxView?.unreadCount ?? 0;
+		updateFaviconBadge(unreadCount);
+	}
 
 	// ============================================================================
 	// ROUTE-SPECIFIC LOGIC
