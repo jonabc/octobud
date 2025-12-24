@@ -19,7 +19,7 @@
  */
 
 const FAVICON_SIZE = 32;
-const BADGE_SIZE = 20;
+const BADGE_SIZE = 24;
 const BADGE_FONT_SIZE = 14;
 
 let originalFavicon: string | null = null;
@@ -27,16 +27,16 @@ let currentBadgeCount: number | null = null;
 
 /**
  * Get the badge text to display based on count.
- * Returns empty string for 0, the count for 1-100, or "100+" for >100.
+ * Returns empty string for 0, the count for 1-50, or "50+" for >50.
  */
 export function getBadgeText(count: number): string {
 	if (count <= 0) {
 		return "";
 	}
-	if (count <= 100) {
+	if (count <= 50) {
 		return count.toString();
 	}
-	return "100+";
+	return "50+";
 }
 
 /**

@@ -61,23 +61,23 @@ describe("Favicon Badge Integration", () => {
 			expect(() => updateFaviconBadge(10)).not.toThrow();
 		});
 
-		it("updates badge when unread count increases from 50 to 120 (100+ display)", () => {
+		it("updates badge when unread count increases from 40 to 60 (50+ display)", () => {
 			const link = document.createElement("link");
 			link.rel = "icon";
 			link.href = "/favicon.png";
 			document.head.appendChild(link);
 
-			// Initial state: 50 unread notifications
-			updateFaviconBadge(50);
+			// Initial state: 40 unread notifications
+			updateFaviconBadge(40);
 
-			// Many more notifications arrive: count increases to 120
-			updateFaviconBadge(120);
+			// More notifications arrive: count increases to 60
+			updateFaviconBadge(60);
 
-			// Should trigger badge update showing "100+"
-			expect(() => updateFaviconBadge(120)).not.toThrow();
+			// Should trigger badge update showing "50+"
+			expect(() => updateFaviconBadge(60)).not.toThrow();
 		});
 
-		it("updates badge when unread count increases from 0 to 100", () => {
+		it("updates badge when unread count increases from 0 to 50", () => {
 			const link = document.createElement("link");
 			link.rel = "icon";
 			link.href = "/favicon.png";
@@ -86,11 +86,11 @@ describe("Favicon Badge Integration", () => {
 			// Initial state: 0 unread notifications
 			updateFaviconBadge(0);
 
-			// Many notifications arrive: count increases to 100
-			updateFaviconBadge(100);
+			// Many notifications arrive: count increases to 50
+			updateFaviconBadge(50);
 
-			// Should trigger badge update showing "100"
-			expect(() => updateFaviconBadge(100)).not.toThrow();
+			// Should trigger badge update showing "50"
+			expect(() => updateFaviconBadge(50)).not.toThrow();
 		});
 	});
 
@@ -128,52 +128,52 @@ describe("Favicon Badge Integration", () => {
 			expect(faviconLink?.href).toContain("favicon.png");
 		});
 
-		it("updates badge when unread count decreases from 150 to 50", () => {
+		it("updates badge when unread count decreases from 75 to 25", () => {
 			const link = document.createElement("link");
 			link.rel = "icon";
 			link.href = "/favicon.png";
 			document.head.appendChild(link);
 
-			// Initial state: 150 unread notifications (showing "100+")
-			updateFaviconBadge(150);
+			// Initial state: 75 unread notifications (showing "50+")
+			updateFaviconBadge(75);
 
-			// Mark many as read: count decreases to 50
+			// Mark many as read: count decreases to 25
+			updateFaviconBadge(25);
+
+			// Should trigger badge update showing "25"
+			expect(() => updateFaviconBadge(25)).not.toThrow();
+		});
+
+		it("updates badge when unread count decreases from 60 to 50", () => {
+			const link = document.createElement("link");
+			link.rel = "icon";
+			link.href = "/favicon.png";
+			document.head.appendChild(link);
+
+			// Initial state: 60 unread notifications (showing "50+")
+			updateFaviconBadge(60);
+
+			// Mark some as read: count decreases to exactly 50
 			updateFaviconBadge(50);
 
-			// Should trigger badge update showing "50"
+			// Should trigger badge update showing "50" (not "50+")
 			expect(() => updateFaviconBadge(50)).not.toThrow();
 		});
 
-		it("updates badge when unread count decreases from 120 to 100", () => {
+		it("updates badge when unread count decreases from 51 to 49", () => {
 			const link = document.createElement("link");
 			link.rel = "icon";
 			link.href = "/favicon.png";
 			document.head.appendChild(link);
 
-			// Initial state: 120 unread notifications (showing "100+")
-			updateFaviconBadge(120);
+			// Initial state: 51 unread notifications (showing "50+")
+			updateFaviconBadge(51);
 
-			// Mark some as read: count decreases to exactly 100
-			updateFaviconBadge(100);
+			// Mark some as read: count decreases to 49
+			updateFaviconBadge(49);
 
-			// Should trigger badge update showing "100" (not "100+")
-			expect(() => updateFaviconBadge(100)).not.toThrow();
-		});
-
-		it("updates badge when unread count decreases from 101 to 99", () => {
-			const link = document.createElement("link");
-			link.rel = "icon";
-			link.href = "/favicon.png";
-			document.head.appendChild(link);
-
-			// Initial state: 101 unread notifications (showing "100+")
-			updateFaviconBadge(101);
-
-			// Mark some as read: count decreases to 99
-			updateFaviconBadge(99);
-
-			// Should trigger badge update showing "99" (transition from "100+" to exact count)
-			expect(() => updateFaviconBadge(99)).not.toThrow();
+			// Should trigger badge update showing "49" (transition from "50+" to exact count)
+			expect(() => updateFaviconBadge(49)).not.toThrow();
 		});
 	});
 
@@ -198,23 +198,23 @@ describe("Favicon Badge Integration", () => {
 			expect(faviconLink?.href).toContain("favicon.png");
 		});
 
-		it("handles transitions across the 100+ threshold", () => {
+		it("handles transitions across the 50+ threshold", () => {
 			const link = document.createElement("link");
 			link.rel = "icon";
 			link.href = "/favicon.png";
 			document.head.appendChild(link);
 
-			// Simulate crossing the 100+ threshold multiple times
-			updateFaviconBadge(95); // Start below threshold
-			updateFaviconBadge(105); // Cross into 100+
-			updateFaviconBadge(150); // More come in
-			updateFaviconBadge(99); // Drop below threshold
-			updateFaviconBadge(102); // Cross back above
-			updateFaviconBadge(100); // Exactly at boundary
-			updateFaviconBadge(50); // Drop below
+			// Simulate crossing the 50+ threshold multiple times
+			updateFaviconBadge(45); // Start below threshold
+			updateFaviconBadge(55); // Cross into 50+
+			updateFaviconBadge(75); // More come in
+			updateFaviconBadge(49); // Drop below threshold
+			updateFaviconBadge(52); // Cross back above
+			updateFaviconBadge(50); // Exactly at boundary
+			updateFaviconBadge(25); // Drop below
 
 			// All updates should succeed without error
-			expect(() => updateFaviconBadge(50)).not.toThrow();
+			expect(() => updateFaviconBadge(25)).not.toThrow();
 		});
 	});
 

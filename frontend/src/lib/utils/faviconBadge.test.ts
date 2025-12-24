@@ -36,20 +36,21 @@ describe("getBadgeText", () => {
 		expect(getBadgeText(1)).toBe("1");
 	});
 
-	it("returns the count as string for counts 2-99", () => {
+	it("returns the count as string for counts 2-49", () => {
 		expect(getBadgeText(2)).toBe("2");
+		expect(getBadgeText(25)).toBe("25");
+		expect(getBadgeText(49)).toBe("49");
+	});
+
+	it("returns the count as string for 50", () => {
 		expect(getBadgeText(50)).toBe("50");
-		expect(getBadgeText(99)).toBe("99");
 	});
 
-	it("returns the count as string for 100", () => {
-		expect(getBadgeText(100)).toBe("100");
-	});
-
-	it('returns "100+" for counts over 100', () => {
-		expect(getBadgeText(101)).toBe("100+");
-		expect(getBadgeText(1000)).toBe("100+");
-		expect(getBadgeText(9999)).toBe("100+");
+	it('returns "50+" for counts over 50', () => {
+		expect(getBadgeText(51)).toBe("50+");
+		expect(getBadgeText(100)).toBe("50+");
+		expect(getBadgeText(1000)).toBe("50+");
+		expect(getBadgeText(9999)).toBe("50+");
 	});
 });
 
