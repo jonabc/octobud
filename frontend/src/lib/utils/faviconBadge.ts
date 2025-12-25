@@ -22,7 +22,7 @@ const FAVICON_SIZE = 32;
 const BADGE_HEIGHT = 20;
 const BADGE_FONT_SIZE = 18; // Font size with 2px padding (24 - 4 = 20)
 const BADGE_TEXT_PADDING = 2;
-const BADGE_CHARACTER_WIDTH = 10;  // Approx pixels per character
+const BADGE_CHARACTER_WIDTH = 10; // Approx pixels per character
 
 let originalFavicon: string | null = null;
 let currentBadgeCount: number | null = null;
@@ -77,7 +77,9 @@ export function updateFaviconBadge(count: number): void {
 		return;
 	}
 
-	const fontFamily = window.getComputedStyle(document.getElementsByTagName('body')[0])["fontFamily"];
+	const fontFamily = window.getComputedStyle(document.getElementsByTagName("body")[0])[
+		"fontFamily"
+	];
 
 	// Create canvas for drawing
 	const canvas = document.createElement("canvas");
@@ -92,8 +94,11 @@ export function updateFaviconBadge(count: number): void {
 	ctx.textBaseline = "middle";
 	ctx.letterSpacing = "-1px";
 
-	// Find the badge width as the minimum of (text width + padding) and the favicon size 
-	const badgeWidth = Math.min(FAVICON_SIZE, Math.ceil(ctx.measureText(badgeText).width + BADGE_TEXT_PADDING));
+	// Find the badge width as the minimum of (text width + padding) and the favicon size
+	const badgeWidth = Math.min(
+		FAVICON_SIZE,
+		Math.ceil(ctx.measureText(badgeText).width + BADGE_TEXT_PADDING)
+	);
 
 	// Load the original favicon image
 	const img = new Image();
@@ -114,8 +119,8 @@ export function updateFaviconBadge(count: number): void {
 		ctx.fillStyle = "#000000"; // black
 
 		// Find the text X and Y locations based on the badge X and Y, width and height, and padding offsets
-		const textX = badgeX + (badgeWidth / 2) - (BADGE_TEXT_PADDING / 2);
-		const textY = badgeY + (BADGE_HEIGHT / 2) + (BADGE_TEXT_PADDING / 2)
+		const textX = badgeX + badgeWidth / 2 - BADGE_TEXT_PADDING / 2;
+		const textY = badgeY + BADGE_HEIGHT / 2 + BADGE_TEXT_PADDING / 2;
 		ctx.fillText(badgeText, textX, textY);
 
 		// Update the favicon

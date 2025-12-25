@@ -23,13 +23,13 @@ import {
 } from "./faviconBadge";
 
 describe("getBadgeText", () => {
-	it("returns empty string for 0", () => {
-		expect(getBadgeText(0)).toBe("");
+	it("returns '0' for 0", () => {
+		expect(getBadgeText(0)).toBe("0");
 	});
 
-	it("returns empty string for negative numbers", () => {
-		expect(getBadgeText(-1)).toBe("");
-		expect(getBadgeText(-100)).toBe("");
+	it("returns string representation for negative numbers", () => {
+		expect(getBadgeText(-1)).toBe("-1");
+		expect(getBadgeText(-100)).toBe("-100");
 	});
 
 	it("returns the count as string for 1", () => {
