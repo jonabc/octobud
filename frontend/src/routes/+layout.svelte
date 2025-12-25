@@ -87,7 +87,11 @@
 	import { getSWHealthStore } from "$lib/stores/swHealthStore";
 	import { setupServiceWorkerHandlers } from "$lib/utils/serviceWorkerMessageHandler";
 	import { NavigationEventSource } from "$lib/api/navigation";
-	import { initializeFavicon, updateFaviconBadge } from "$lib/utils/faviconBadge";
+	import {
+		initializeFavicon,
+		updateFaviconBadge,
+		restoreOriginalFavicon,
+	} from "$lib/utils/faviconBadge";
 
 	// Props
 	export let data: LayoutData;
@@ -751,10 +755,20 @@
 	// FAVICON BADGE
 	// ============================================================================
 
-	// Update favicon badge whenever unread count changes
+	// Get the favicon badge setting
+	const notificationSettingsStore = browser ? getNotificationSettingsStore() : null;
+	const faviconBadgeEnabledStore = notificationSettingsStore?.faviconBadgeEnabled;
+
+	// Update favicon badge whenever unread count changes or setting changes
 	$: if (browser && !isLoginRoute && !isSetupRoute) {
 		const unreadCount = inboxView?.unreadCount ?? 0;
-		updateFaviconBadge(unreadCount);
+		const badgeEnabled = faviconBadgeEnabledStore ? $faviconBadgeEnabledStore : true;
+
+		if (badgeEnabled) {
+			updateFaviconBadge(unreadCount);
+		} else {
+			restoreOriginalFavicon();
+		}
 	}
 
 	// ============================================================================
