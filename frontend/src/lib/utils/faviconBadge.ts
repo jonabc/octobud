@@ -22,7 +22,6 @@ const FAVICON_SIZE = 32;
 const BADGE_HEIGHT = 20;
 const BADGE_FONT_SIZE = 18; // Font size with 2px padding (24 - 4 = 20)
 const BADGE_TEXT_PADDING = 2;
-const BADGE_CHARACTER_WIDTH = 10; // Approx pixels per character
 
 let originalFavicon: string | null = null;
 let currentBadgeCount: number | null = null;
