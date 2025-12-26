@@ -140,7 +140,7 @@
 					// Call markRead from pageController which will handle the update internally
 					if (notification.githubId && lastTimelineEventId) {
 						// If we have a timeline event ID, call the API directly to pass it
-						await markNotificationRead(notification.githubId, lastTimelineEventId ?? undefined);
+						await markNotificationRead(notification.githubId, lastTimelineEventId);
 						// After marking as read, the notification store will be updated by websocket/polling
 					} else {
 						// Fall back to the standard markRead action

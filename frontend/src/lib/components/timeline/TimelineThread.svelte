@@ -31,7 +31,9 @@
 	const isLoadingMore = writable(false);
 	let autoLoadDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 	let hasScrolledToUnread = false;
-	let timelineContainer: HTMLDivElement | null = null;
+	
+	// Delay for DOM to fully render before scrolling
+	const DOM_RENDER_DELAY_MS = 100;
 
 	// Auto-load timeline on mount with debounce
 	onMount(() => {
@@ -83,13 +85,13 @@
 	}
 
 	function scrollToElement(elementId: string) {
-		// Small delay to ensure DOM is fully rendered
+		// Small delay to ensure DOM is fully rendered before scrolling
 		setTimeout(() => {
 			const element = document.getElementById(elementId);
 			if (element) {
 				element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 			}
-		}, 100);
+		}, DOM_RENDER_DELAY_MS);
 	}
 
 	async function handleLoadTimeline() {
