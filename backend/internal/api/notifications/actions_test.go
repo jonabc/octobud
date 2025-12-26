@@ -51,7 +51,7 @@ func TestHandler_handleNotificationAction(t *testing.T) {
 			action:   ActionMarkRead,
 			setupMock: func(mockSvc *notificationmocks.MockNotificationService) {
 				mockSvc.EXPECT().
-					MarkNotificationRead(gomock.Any(), "test-user-id", "test-id").
+					MarkNotificationRead(gomock.Any(), "test-user-id", "test-id", gomock.Any()).
 					Return(db.Notification{}, nil)
 				mockSvc.EXPECT().
 					GetNotificationWithDetails(gomock.Any(), "test-user-id", "test-id", "").
@@ -78,7 +78,7 @@ func TestHandler_handleNotificationAction(t *testing.T) {
 			action:   ActionMarkRead,
 			setupMock: func(mockSvc *notificationmocks.MockNotificationService) {
 				mockSvc.EXPECT().
-					MarkNotificationRead(gomock.Any(), "test-user-id", "not-found").
+					MarkNotificationRead(gomock.Any(), "test-user-id", "not-found", gomock.Any()).
 					Return(db.Notification{}, sql.ErrNoRows)
 			},
 			expectedStatus: http.StatusNotFound,
@@ -89,7 +89,7 @@ func TestHandler_handleNotificationAction(t *testing.T) {
 			action:   ActionMarkRead,
 			setupMock: func(mockSvc *notificationmocks.MockNotificationService) {
 				mockSvc.EXPECT().
-					MarkNotificationRead(gomock.Any(), "test-user-id", "test-id").
+					MarkNotificationRead(gomock.Any(), "test-user-id", "test-id", gomock.Any()).
 					Return(db.Notification{}, errors.New("database error"))
 			},
 			expectedStatus: http.StatusInternalServerError,
