@@ -338,8 +338,8 @@ func (q *Queries) MarkNotificationFiltered(ctx context.Context, arg MarkNotifica
 const markNotificationRead = `-- name: MarkNotificationRead :one
 UPDATE notifications 
 SET is_read = 1,
-    last_read_timeline_event_id = ?3
-WHERE user_id = ? AND github_id = ? RETURNING id, user_id, github_id, repository_id, pull_request_id, subject_type, subject_title, subject_url, subject_latest_comment_url, reason, archived, github_unread, github_updated_at, github_last_read_at, github_url, github_subscription_url, imported_at, payload, subject_raw, subject_fetched_at, author_login, author_id, is_read, muted, snoozed_until, effective_sort_date, snoozed_at, starred, filtered, subject_number, subject_state, subject_merged, subject_state_reason, last_read_timeline_event_id
+    last_read_timeline_event_id = ?1
+WHERE user_id = ?2 AND github_id = ?3 RETURNING id, user_id, github_id, repository_id, pull_request_id, subject_type, subject_title, subject_url, subject_latest_comment_url, reason, archived, github_unread, github_updated_at, github_last_read_at, github_url, github_subscription_url, imported_at, payload, subject_raw, subject_fetched_at, author_login, author_id, is_read, muted, snoozed_until, effective_sort_date, snoozed_at, starred, filtered, subject_number, subject_state, subject_merged, subject_state_reason, last_read_timeline_event_id
 `
 
 type MarkNotificationReadParams struct {

@@ -7,8 +7,8 @@ SELECT * FROM notifications WHERE user_id = ? AND id = ?;
 -- name: MarkNotificationRead :one
 UPDATE notifications 
 SET is_read = 1,
-    last_read_timeline_event_id = sqlc.narg(last_read_timeline_event_id)
-WHERE user_id = ? AND github_id = ? RETURNING *;
+    last_read_timeline_event_id = ?1
+WHERE user_id = ?2 AND github_id = ?3 RETURNING *;
 
 -- name: MarkNotificationUnread :one
 UPDATE notifications SET is_read = 0 WHERE user_id = ? AND github_id = ? RETURNING *;
