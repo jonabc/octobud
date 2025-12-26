@@ -337,12 +337,16 @@ export interface BulkUpdateNotificationResponse {
 // Mark notification as read
 export async function markNotificationRead(
 	githubId: string,
+	lastReadTimelineEventId?: string,
 	fetchImpl?: typeof fetch
 ): Promise<Notification> {
+	const body = lastReadTimelineEventId ? { lastReadTimelineEventId } : undefined;
 	const response = await fetchWithAuth(
 		`/api/notifications/${encodeURIComponent(githubId)}/mark-read`,
 		{
 			method: "POST",
+			headers: body ? { "Content-Type": "application/json" } : undefined,
+			body: body ? JSON.stringify(body) : undefined,
 		},
 		fetchImpl
 	);

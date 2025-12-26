@@ -85,6 +85,7 @@ export interface BackendNotificationResponse {
 	actionHints?: ActionHints;
 	tags?: Tag[];
 	authorLogin?: string | null;
+	lastReadTimelineEventId?: string | null;
 }
 
 export interface ActionHints {

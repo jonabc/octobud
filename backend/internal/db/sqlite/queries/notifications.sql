@@ -5,7 +5,10 @@ SELECT * FROM notifications WHERE user_id = ? AND github_id = ?;
 SELECT * FROM notifications WHERE user_id = ? AND id = ?;
 
 -- name: MarkNotificationRead :one
-UPDATE notifications SET is_read = 1 WHERE user_id = ? AND github_id = ? RETURNING *;
+UPDATE notifications 
+SET is_read = 1,
+    last_read_timeline_event_id = sqlc.narg(last_read_timeline_event_id)
+WHERE user_id = ? AND github_id = ? RETURNING *;
 
 -- name: MarkNotificationUnread :one
 UPDATE notifications SET is_read = 0 WHERE user_id = ? AND github_id = ? RETURNING *;
