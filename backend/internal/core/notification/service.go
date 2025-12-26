@@ -77,7 +77,7 @@ type NotificationWriter interface {
 		userID string,
 		params db.UpdateNotificationSubjectParams,
 	) error
-	MarkNotificationRead(ctx context.Context, userID, githubID string) (db.Notification, error)
+	MarkNotificationRead(ctx context.Context, userID, githubID string, lastReadTimelineEventID *string) (db.Notification, error)
 	MarkNotificationUnread(ctx context.Context, userID, githubID string) (db.Notification, error)
 	ArchiveNotification(ctx context.Context, userID, githubID string) (db.Notification, error)
 	UnarchiveNotification(ctx context.Context, userID, githubID string) (db.Notification, error)

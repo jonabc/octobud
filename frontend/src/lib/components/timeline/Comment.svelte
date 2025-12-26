@@ -132,7 +132,7 @@
 
 {#if isReviewWithoutBody}
 	<!-- Render review without body as a simple timeline event -->
-	<div class="flex gap-3 pt-4">
+	<div class="flex gap-3 pt-4" id="timeline-item-{item.id}">
 		<!-- Avatar and thread line -->
 		<div class="flex flex-col items-center flex-shrink-0 relative z-10" style="width: 40px;">
 			<!-- Avatar / Initial -->
@@ -196,7 +196,7 @@
 	</div>
 {:else}
 	<!-- Render comment or review with body as full card -->
-	<div class="flex gap-3 pt-4" class:pb-4={isLastItem}>
+	<div class="flex gap-3 pt-4" class:pb-4={isLastItem} id="timeline-item-{item.id}">
 		<!-- Avatar column with thread line -->
 		<div class="flex flex-col items-center flex-shrink-0 relative z-10" style="width: 40px;">
 			<!-- Avatar -->

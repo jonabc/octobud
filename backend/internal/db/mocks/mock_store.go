@@ -835,18 +835,18 @@ func (mr *MockStoreMockRecorder) MarkNotificationFiltered(ctx, userID, githubID 
 }
 
 // MarkNotificationRead mocks base method.
-func (m *MockStore) MarkNotificationRead(ctx context.Context, userID, githubID string) (db.Notification, error) {
+func (m *MockStore) MarkNotificationRead(ctx context.Context, userID, githubID string, lastReadTimelineEventID *string) (db.Notification, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MarkNotificationRead", ctx, userID, githubID)
+	ret := m.ctrl.Call(m, "MarkNotificationRead", ctx, userID, githubID, lastReadTimelineEventID)
 	ret0, _ := ret[0].(db.Notification)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // MarkNotificationRead indicates an expected call of MarkNotificationRead.
-func (mr *MockStoreMockRecorder) MarkNotificationRead(ctx, userID, githubID any) *gomock.Call {
+func (mr *MockStoreMockRecorder) MarkNotificationRead(ctx, userID, githubID, lastReadTimelineEventID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkNotificationRead", reflect.TypeOf((*MockStore)(nil).MarkNotificationRead), ctx, userID, githubID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkNotificationRead", reflect.TypeOf((*MockStore)(nil).MarkNotificationRead), ctx, userID, githubID, lastReadTimelineEventID)
 }
 
 // MarkNotificationUnfiltered mocks base method.

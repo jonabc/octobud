@@ -74,11 +74,18 @@ func (s *Store) ListNotificationsFromQuery(
 func (s *Store) MarkNotificationRead(
 	ctx context.Context,
 	userID, githubID string,
+	lastReadTimelineEventID *string,
 ) (db.Notification, error) {
+	var nullEventID sql.NullString
+	if lastReadTimelineEventID != nil {
+		nullEventID = sql.NullString{String: *lastReadTimelineEventID, Valid: true}
+	}
+
 	n, err := db.RetryOnBusy(ctx, func() (Notification, error) {
 		return s.q.MarkNotificationRead(ctx, MarkNotificationReadParams{
-			UserID:   userID,
-			GithubID: githubID,
+			LastReadTimelineEventID: nullEventID,
+			UserID:                  userID,
+			GithubID:                githubID,
 		})
 	})
 	if err != nil {

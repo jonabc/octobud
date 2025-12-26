@@ -33,8 +33,9 @@ var (
 func (s *Service) MarkNotificationRead(
 	ctx context.Context,
 	userID, githubID string,
+	lastReadTimelineEventID *string,
 ) (db.Notification, error) {
-	return s.queries.MarkNotificationRead(ctx, userID, githubID)
+	return s.queries.MarkNotificationRead(ctx, userID, githubID, lastReadTimelineEventID)
 }
 
 // MarkNotificationUnread marks a notification as unread.

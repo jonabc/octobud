@@ -57,6 +57,7 @@ type Notification struct {
 	SubjectState            sql.NullString
 	SubjectMerged           sql.NullInt64
 	SubjectStateReason      sql.NullString
+	LastReadTimelineEventID sql.NullString
 }
 
 type PullRequest struct {
