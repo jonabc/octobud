@@ -137,11 +137,14 @@
 				try {
 					// Get the last timeline event ID if timeline controller is available
 					const lastTimelineEventId = timelineController?.actions.getLastTimelineEventId() ?? null;
-					// Call markNotificationRead API directly with lastTimelineEventId
-					if (notification.githubId) {
+					// Call markRead from pageController which will handle the update internally
+					if (notification.githubId && lastTimelineEventId) {
+						// If we have a timeline event ID, call the API directly to pass it
 						await markNotificationRead(notification.githubId, lastTimelineEventId ?? undefined);
-						// Refresh notification to get updated data
-						await pageController.actions.refreshCurrentNotification();
+						// After marking as read, the notification store will be updated by websocket/polling
+					} else {
+						// Fall back to the standard markRead action
+						await pageController.actions.markRead(notification);
 					}
 				} catch (err) {}
 			}, 1500);

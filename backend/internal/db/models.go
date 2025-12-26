@@ -57,6 +57,7 @@ type Notification struct {
 	SubjectState            sql.NullString
 	SubjectMerged           sql.NullBool
 	SubjectStateReason      sql.NullString
+	LastReadTimelineEventID sql.NullString
 }
 
 // PullRequest represents a pull request
