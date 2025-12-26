@@ -38,6 +38,7 @@ export interface TimelineControllerActions {
 	loadTimeline: (githubId: string, perPage: number) => Promise<void>;
 	loadMoreTimeline: (githubId: string, perPage: number) => Promise<void>;
 	reset: () => void;
+	getLastTimelineEventId: () => string | null;
 }
 
 export interface TimelineController {
@@ -209,6 +210,15 @@ export function createTimelineController(): TimelineController {
 		currentGithubId = null;
 	}
 
+	function getLastTimelineEventId(): string | null {
+		const currentItems = get(items);
+		if (currentItems.length === 0) {
+			return null;
+		}
+		const lastItem = currentItems[currentItems.length - 1];
+		return lastItem.id ? String(lastItem.id) : null;
+	}
+
 	return {
 		stores: {
 			items,
@@ -222,6 +232,7 @@ export function createTimelineController(): TimelineController {
 			loadTimeline,
 			loadMoreTimeline,
 			reset,
+			getLastTimelineEventId,
 		},
 	};
 }

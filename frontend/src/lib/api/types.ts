@@ -127,6 +127,7 @@ export interface Notification {
 	actionHints?: ActionHints;
 	tags?: Tag[];
 	effectiveSortDate?: string;
+	lastReadTimelineEventId?: string | null;
 }
 
 export type ViewFilterOperator = "equals" | "contains" | "does not equal" | "does not contain";

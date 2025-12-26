@@ -102,6 +102,7 @@ const fromBackendNotification = (notification: BackendNotificationResponse): Not
 		actionHints: notification.actionHints,
 		tags: notification.tags ?? [],
 		effectiveSortDate: notification.effectiveSortDate,
+		lastReadTimelineEventId: notification.lastReadTimelineEventId ?? undefined,
 	};
 };
 
