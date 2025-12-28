@@ -15,7 +15,6 @@
 	// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	import type { Notification, NotificationDetail } from "$lib/api/types";
-	import { markNotificationRead } from "$lib/api/notifications";
 	import { fade } from "svelte/transition";
 	import { onDestroy, getContext, onMount } from "svelte";
 	import { normalizeReason, parseSubjectMetadata } from "$lib/utils/notificationHelpers";
@@ -135,17 +134,7 @@
 			// Set up new timer for 2 seconds
 			autoMarkReadTimeoutId = setTimeout(async () => {
 				try {
-					// Get the last timeline event ID if timeline controller is available
-					const lastTimelineEventId = timelineController?.actions.getLastTimelineEventId() ?? null;
-					// Call markRead from pageController which will handle the update internally
-					if (notification.githubId && lastTimelineEventId) {
-						// If we have a timeline event ID, call the API directly to pass it
-						await markNotificationRead(notification.githubId, lastTimelineEventId);
-						// After marking as read, the notification store will be updated by websocket/polling
-					} else {
-						// Fall back to the standard markRead action
-						await pageController.actions.markRead(notification);
-					}
+					await pageController.actions.markRead(notification);
 				} catch (err) {}
 			}, 1500);
 		} else if (!isSplitView) {
