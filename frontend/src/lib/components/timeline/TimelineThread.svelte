@@ -89,7 +89,7 @@
 		setTimeout(() => {
 			const element = document.getElementById(elementId);
 			if (element) {
-				element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+				element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 			}
 		}, DOM_RENDER_DELAY_MS);
 	}
