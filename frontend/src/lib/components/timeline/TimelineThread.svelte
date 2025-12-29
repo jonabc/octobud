@@ -17,11 +17,12 @@
 	import type { TimelineController } from "$lib/state/timelineController";
 	import TimelineItem from "./TimelineItem.svelte";
 	import { writable } from "svelte/store";
-	import { tick, onMount, onDestroy } from "svelte";
+	import { tick, onMount, onDestroy, afterUpdate } from "svelte";
 
 	export let githubId: string;
 	export let timelineController: TimelineController;
 	export let hasPermissionError: boolean = false;
+	export let lastReadTimelineEventId: string | null | undefined = undefined;
 
 	const { items, isLoading, error, pagination, hasAttemptedAutoLoad } = timelineController.stores;
 	const { autoLoadTimeline, loadTimeline, loadMoreTimeline } = timelineController.actions;
@@ -29,6 +30,10 @@
 	let hasLoaded = false;
 	const isLoadingMore = writable(false);
 	let autoLoadDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+	let hasScrolledToUnread = false;
+	
+	// Delay for DOM to fully render before scrolling
+	const DOM_RENDER_DELAY_MS = 100;
 
 	// Auto-load timeline on mount with debounce
 	onMount(() => {
@@ -45,6 +50,49 @@
 			clearTimeout(autoLoadDebounceTimer);
 		}
 	});
+
+	// Scroll to appropriate timeline event based on lastReadTimelineEventId
+	afterUpdate(() => {
+		if (!hasScrolledToUnread && $items.length > 0 && !$isLoading && lastReadTimelineEventId !== undefined) {
+			scrollToUnreadEvent();
+		}
+	});
+
+	function scrollToUnreadEvent() {
+		hasScrolledToUnread = true;
+
+		// If no lastReadTimelineEventId, don't scroll
+		if (!lastReadTimelineEventId) {
+			return;
+		}
+
+		const lastItemId = $items.length > 0 ? String($items[$items.length - 1].id) : null;
+
+		// If lastReadTimelineEventId matches the last event, scroll to the last event
+		if (lastItemId === lastReadTimelineEventId) {
+			scrollToElement(`timeline-item-${lastItemId}`);
+			return;
+		}
+
+		// Find the index of the last read event
+		const lastReadIndex = $items.findIndex(item => String(item.id) === lastReadTimelineEventId);
+
+		// If we found the last read event and there are events after it, scroll to the first unread one
+		if (lastReadIndex >= 0 && lastReadIndex < $items.length - 1) {
+			const firstUnreadItem = $items[lastReadIndex + 1];
+			scrollToElement(`timeline-item-${firstUnreadItem.id}`);
+		}
+	}
+
+	function scrollToElement(elementId: string) {
+		// Small delay to ensure DOM is fully rendered before scrolling
+		setTimeout(() => {
+			const element = document.getElementById(elementId);
+			if (element) {
+				element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+		}, DOM_RENDER_DELAY_MS);
+	}
 
 	async function handleLoadTimeline() {
 		hasLoaded = true;

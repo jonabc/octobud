@@ -167,7 +167,7 @@ func (rm *RuleMatcher) ApplyRuleActions( //nolint:gocyclo // The complexity is h
 	}
 
 	if actions.MarkRead {
-		if _, err := rm.store.MarkNotificationRead(ctx, userID, githubID); err != nil {
+		if _, err := rm.store.MarkNotificationRead(ctx, userID, githubID, nil); err != nil {
 			errs = append(errs, fmt.Errorf("failed to mark read: %w", err))
 		}
 	}

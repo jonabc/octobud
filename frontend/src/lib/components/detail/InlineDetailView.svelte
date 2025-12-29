@@ -134,7 +134,9 @@
 			// Set up new timer for 2 seconds
 			autoMarkReadTimeoutId = setTimeout(async () => {
 				try {
-					await pageController.actions.markRead(notification);
+					// Get the last timeline event ID if timeline controller is available
+					const lastTimelineEventId = timelineController?.actions.getLastTimelineEventId() ?? undefined;
+					await pageController.actions.markRead(notification, lastTimelineEventId);
 				} catch (err) {}
 			}, 1500);
 		} else if (!isSplitView) {
@@ -936,6 +938,7 @@
 								githubId={notification.githubId}
 								{timelineController}
 								{hasPermissionError}
+								lastReadTimelineEventId={notification.lastReadTimelineEventId}
 							/>
 						{/key}
 					{/if}

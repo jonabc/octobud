@@ -69,10 +69,10 @@ func TestApplyRuleHandler_SuccessWithRuleQuery(t *testing.T) {
 
 	// Expect actions to be applied for each notification
 	mockStore.EXPECT().
-		MarkNotificationRead(gomock.Any(), "test-user-id", "notif-1").
+		MarkNotificationRead(gomock.Any(), "test-user-id", "notif-1", gomock.Any()).
 		Return(db.Notification{}, nil)
 	mockStore.EXPECT().
-		MarkNotificationRead(gomock.Any(), "test-user-id", "notif-2").
+		MarkNotificationRead(gomock.Any(), "test-user-id", "notif-2", gomock.Any()).
 		Return(db.Notification{}, nil)
 
 	err := handler.Handle(context.Background(), "test-user-id", ruleID)

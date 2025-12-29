@@ -40,7 +40,7 @@ func TestHandler_handleNotificationAction(t *testing.T) {
 	tests := []struct {
 		name           string
 		githubID       string
-		action         NotificationAction
+		requestBody    interface{}
 		setupMock      func(*notificationmocks.MockNotificationService)
 		expectedStatus int
 		expectedBody   func(*testing.T, *httptest.ResponseRecorder)
@@ -48,10 +48,12 @@ func TestHandler_handleNotificationAction(t *testing.T) {
 		{
 			name:     "success marks notification as read",
 			githubID: "test-id",
-			action:   ActionMarkRead,
+			requestBody: markNotificationReadRequest{
+				LastReadTimelineEventID: stringPtr("12345"),
+			},
 			setupMock: func(mockSvc *notificationmocks.MockNotificationService) {
 				mockSvc.EXPECT().
-					MarkNotificationRead(gomock.Any(), "test-user-id", "test-id").
+					MarkNotificationRead(gomock.Any(), "test-user-id", "test-id", stringPtr("12345")).
 					Return(db.Notification{}, nil)
 				mockSvc.EXPECT().
 					GetNotificationWithDetails(gomock.Any(), "test-user-id", "test-id", "").
@@ -68,28 +70,28 @@ func TestHandler_handleNotificationAction(t *testing.T) {
 		{
 			name:           "missing githubID returns 400",
 			githubID:       "",
-			action:         ActionMarkRead,
+			requestBody:    markNotificationReadRequest{},
 			setupMock:      func(*notificationmocks.MockNotificationService) {},
 			expectedStatus: http.StatusBadRequest,
 		},
 		{
-			name:     "not found returns 404",
-			githubID: "not-found",
-			action:   ActionMarkRead,
+			name:        "not found returns 404",
+			githubID:    "not-found",
+			requestBody: markNotificationReadRequest{},
 			setupMock: func(mockSvc *notificationmocks.MockNotificationService) {
 				mockSvc.EXPECT().
-					MarkNotificationRead(gomock.Any(), "test-user-id", "not-found").
+					MarkNotificationRead(gomock.Any(), "test-user-id", "not-found", gomock.Any()).
 					Return(db.Notification{}, sql.ErrNoRows)
 			},
 			expectedStatus: http.StatusNotFound,
 		},
 		{
-			name:     "service error returns 500",
-			githubID: "test-id",
-			action:   ActionMarkRead,
+			name:        "service error returns 500",
+			githubID:    "test-id",
+			requestBody: markNotificationReadRequest{},
 			setupMock: func(mockSvc *notificationmocks.MockNotificationService) {
 				mockSvc.EXPECT().
-					MarkNotificationRead(gomock.Any(), "test-user-id", "test-id").
+					MarkNotificationRead(gomock.Any(), "test-user-id", "test-id", gomock.Any()).
 					Return(db.Notification{}, errors.New("database error"))
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -115,7 +117,7 @@ func TestHandler_handleNotificationAction(t *testing.T) {
 			req := createRequest(
 				http.MethodPost,
 				"/notifications/"+url.PathEscape(tt.githubID),
-				nil,
+				tt.requestBody,
 			)
 			rctx := chi.NewRouteContext()
 			if tt.githubID != "" {
@@ -126,7 +128,7 @@ func TestHandler_handleNotificationAction(t *testing.T) {
 			req = req.WithContext(helpers.ContextWithUserID(req.Context(), testUserID))
 
 			w := httptest.NewRecorder()
-			handler.handleNotificationAction(w, req, tt.action)
+			handler.handleMarkNotificationRead(w, req)
 
 			require.Equal(t, tt.expectedStatus, w.Code)
 			if tt.expectedBody != nil {
@@ -575,4 +577,9 @@ func TestHandler_handleRemoveTagFromNotification(t *testing.T) {
 			}
 		})
 	}
+}
+
+// Helper functions
+func stringPtr(s string) *string {
+	return &s
 }

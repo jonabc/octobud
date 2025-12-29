@@ -20,7 +20,7 @@ import type { Notification } from "$lib/api/types";
  * Actions related to individual notification operations
  */
 export interface NotificationActions {
-	markRead: (notification: Notification) => Promise<void>;
+	markRead: (notification: Notification, lastReadTimelineEventId?: string) => Promise<void>;
 	archive: (notification: Notification) => Promise<void>;
 	mute: (notification: Notification) => Promise<void>;
 	unmute: (notification: Notification) => Promise<void>;

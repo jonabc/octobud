@@ -55,7 +55,7 @@ func TestService_MarkNotificationRead(t *testing.T) {
 					ImportedAt:   now,
 				}
 				m.EXPECT().
-					MarkNotificationRead(gomock.Any(), userID, id).
+					MarkNotificationRead(gomock.Any(), userID, id, gomock.Any()).
 					Return(expectedNotification, nil)
 			},
 			expectErr: false,
@@ -70,7 +70,7 @@ func TestService_MarkNotificationRead(t *testing.T) {
 			setupMock: func(m *mocks.MockStore, userID, id string) {
 				dbError := errors.New("database connection failed")
 				m.EXPECT().
-					MarkNotificationRead(gomock.Any(), userID, id).
+					MarkNotificationRead(gomock.Any(), userID, id, gomock.Any()).
 					Return(db.Notification{}, dbError)
 			},
 			expectErr: true,
@@ -91,7 +91,7 @@ func TestService_MarkNotificationRead(t *testing.T) {
 			service := NewService(mockQuerier)
 
 			ctx := context.Background()
-			result, err := service.MarkNotificationRead(ctx, testUserID, tt.githubID)
+			result, err := service.MarkNotificationRead(ctx, testUserID, tt.githubID, nil)
 
 			if tt.expectErr {
 				require.Error(t, err)

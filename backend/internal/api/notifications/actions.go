@@ -77,6 +77,10 @@ type snoozeNotificationRequest struct {
 	SnoozedUntil string `json:"snoozedUntil"`
 }
 
+type markNotificationReadRequest struct {
+	LastReadTimelineEventID *string `json:"lastReadTimelineEventId,omitempty"`
+}
+
 type assignTagRequest struct {
 	TagID string `json:"tagId"`
 }
@@ -172,8 +176,6 @@ func (h *Handler) executeNotificationAction(
 	githubID string,
 ) (interface{}, error) {
 	switch action {
-	case ActionMarkRead:
-		return h.notifications.MarkNotificationRead(ctx, userID, githubID)
 	case ActionMarkUnread:
 		return h.notifications.MarkNotificationUnread(ctx, userID, githubID)
 	case ActionArchive:
@@ -198,10 +200,6 @@ func (h *Handler) executeNotificationAction(
 }
 
 // Individual handler methods that delegate to the unified handler
-func (h *Handler) handleMarkNotificationRead(w http.ResponseWriter, r *http.Request) {
-	h.handleNotificationAction(w, r, ActionMarkRead)
-}
-
 func (h *Handler) handleMarkNotificationUnread(w http.ResponseWriter, r *http.Request) {
 	h.handleNotificationAction(w, r, ActionMarkUnread)
 }
@@ -236,6 +234,82 @@ func (h *Handler) handleUnstarNotification(w http.ResponseWriter, r *http.Reques
 
 func (h *Handler) handleUnfilterNotification(w http.ResponseWriter, r *http.Request) {
 	h.handleNotificationAction(w, r, ActionUnfilter)
+}
+
+// handleMarkNotificationRead marks a notification as read
+// This is kept separate because it requires a request body with lastReadTimelineEventId
+func (h *Handler) handleMarkNotificationRead(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	rawGithubID := chi.URLParam(r, "githubID")
+	if rawGithubID == "" {
+		helpers.WriteError(w, http.StatusBadRequest, "githubID is required")
+		return
+	}
+
+	githubID, err := url.PathUnescape(rawGithubID)
+	if err != nil {
+		h.logger.Error(
+			"invalid githubID encoding",
+			zap.String("github_id", rawGithubID),
+			zap.Error(errors.Join(ErrInvalidGithubIDEncoding, err)),
+		)
+		helpers.WriteError(w, http.StatusBadRequest, "invalid githubID encoding")
+		return
+	}
+
+	// Get userID first
+	userID, ok := helpers.RequireUserID(ctx, w, h.authSvc)
+	if !ok {
+		return
+	}
+
+	// Try to parse request body for optional lastReadTimelineEventId
+	var req markNotificationReadRequest
+	if r.Body != nil && r.ContentLength > 0 {
+		if decodeErr := json.NewDecoder(r.Body).Decode(&req); decodeErr != nil {
+			h.logger.Debug(
+				"failed to decode mark-read request body, continuing without lastReadTimelineEventId",
+				zap.Error(decodeErr),
+			)
+			// Don't return error - treat as if no body was provided
+		}
+	}
+
+	// Execute the action with optional lastReadTimelineEventId
+	_, err = h.notifications.MarkNotificationRead(ctx, userID, githubID, req.LastReadTimelineEventID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			h.logger.Debug(
+				"notification not found",
+				zap.String("github_id", githubID),
+			)
+			helpers.WriteError(w, http.StatusNotFound, "notification not found")
+			return
+		}
+		h.logger.Error(
+			"failed to mark notification as read",
+			zap.String("github_id", githubID),
+			zap.Error(err),
+		)
+		helpers.WriteError(w, http.StatusInternalServerError, "failed to mark notification as read")
+		return
+	}
+
+	// Get updated notification with details
+	queryStr := r.URL.Query().Get("query")
+	notification, err := h.notifications.GetNotificationWithDetails(ctx, userID, githubID, queryStr)
+	if err != nil {
+		h.logger.Error(
+			"failed to get notification with details",
+			zap.String("github_id", githubID),
+			zap.Error(errors.Join(ErrFailedToGetNotification, err)),
+		)
+		helpers.WriteError(w, http.StatusInternalServerError, "failed to get notification")
+		return
+	}
+
+	helpers.WriteJSON(w, http.StatusOK, notificationActionResponse{Notification: notification})
 }
 
 // handleSnoozeNotification snoozes a notification

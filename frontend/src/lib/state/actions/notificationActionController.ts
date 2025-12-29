@@ -177,14 +177,14 @@ export function createNotificationActionController(
 		}
 	}
 
-	async function markRead(notification: Notification): Promise<void> {
+	async function markRead(notification: Notification, lastReadTimelineEventId?: string): Promise<void> {
 		const isCurrentlyRead = notification.isRead;
 
 		await handleAction({
 			notification,
 			actionName: isCurrentlyRead ? "markUnread" : "markRead",
 			performAction: (key) =>
-				isCurrentlyRead ? markNotificationUnread(key) : markNotificationRead(key),
+				isCurrentlyRead ? markNotificationUnread(key) : markNotificationRead(key, lastReadTimelineEventId),
 			successToast: null,
 			errorToast: "Failed to toggle read status",
 			shouldCloseDetailInSingleMode: isCurrentlyRead,
