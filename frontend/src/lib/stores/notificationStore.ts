@@ -41,21 +41,32 @@ export function createNotificationStore(initialPage: NotificationPage) {
 
 	/**
 	 * Update a notification in both normalized store and pageData
-	 * Preserves optimistic read status to prevent refresh from overriding it
+	 * Merges updates into existing notification to prevent unnecessary reactive updates
 	 */
 	function updateNotification(updated: Notification): void {
 		const key = updated.githubId ?? updated.id;
 		if (!key) return;
 
-		// Check if we have an existing notification with optimistic read status
+		// Get existing notification
 		const currentMap = get(notificationsById);
 		const existing = currentMap.get(key);
 
-		// If the existing notification is optimistically marked as read (but the updated one isn't),
-		// preserve the optimistic read status. This prevents refresh from overriding it.
-		let finalNotification = updated;
-		if (existing && existing.isRead && !updated.isRead) {
-			finalNotification = { ...updated, isRead: true };
+		// Merge updated properties into existing notification if it exists
+		// This prevents the entire object reference from changing, which would trigger
+		// reactive updates in components that don't need to re-render
+		let finalNotification: Notification;
+		if (existing) {
+			finalNotification = { ...existing, ...updated };
+			
+			// Special handling: If the existing notification is optimistically marked as read
+			// (but the updated one isn't), preserve the optimistic read status.
+			// This prevents refresh from overriding it.
+			if (existing.isRead && !updated.isRead) {
+				finalNotification = { ...finalNotification, isRead: true };
+			}
+		} else {
+			// No existing notification, use the updated one as-is
+			finalNotification = updated;
 		}
 
 		// Update normalized store
