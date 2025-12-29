@@ -17,6 +17,7 @@
 	import type { Notification, NotificationDetail } from "$lib/api/types";
 	import { fade } from "svelte/transition";
 	import { onDestroy, getContext, onMount } from "svelte";
+	import { get } from "svelte/store";
 	import { normalizeReason, parseSubjectMetadata } from "$lib/utils/notificationHelpers";
 	import { formatRelativeShort } from "$lib/utils/time";
 	import { getNotificationIcon } from "$lib/utils/notificationIcons";
@@ -125,20 +126,27 @@
 		// 2. Notification was initially unread when we started viewing it
 		// 3. Notification is currently unread
 		// 4. Timer hasn't been set up yet
+		// 5. Timeline has finished loading (if timeline exists)
 		if (
 			isSplitView &&
 			wasInitiallyUnread &&
 			!notification.isRead &&
 			autoMarkReadTimeoutId === null
 		) {
-			// Set up new timer for 2 seconds
-			autoMarkReadTimeoutId = setTimeout(async () => {
-				try {
-					// Get the last timeline event ID if timeline controller is available
-					const lastTimelineEventId = timelineController?.actions.getLastTimelineEventId() ?? undefined;
-					await pageController.actions.markRead(notification, lastTimelineEventId);
-				} catch (err) {}
-			}, 1500);
+			// Check if timeline is still loading before setting up the timer
+			const isTimelineLoading = timelineController?.stores.isLoading;
+			const timelineStillLoading = isTimelineLoading ? get(isTimelineLoading) : false;
+			
+			if (!timelineStillLoading) {
+				// Set up new timer for 2 seconds
+				autoMarkReadTimeoutId = setTimeout(async () => {
+					try {
+						// Get the last timeline event ID if timeline controller is available
+						const lastTimelineEventId = timelineController?.actions.getLastTimelineEventId() ?? undefined;
+						await pageController.actions.markRead(notification, lastTimelineEventId);
+					} catch (err) {}
+				}, 1500);
+			}
 		} else if (!isSplitView) {
 			// Clear timer if we switch out of split mode
 			if (autoMarkReadTimeoutId !== null) {
