@@ -200,6 +200,44 @@ func (h *Handler) executeNotificationAction(
 }
 
 // Individual handler methods that delegate to the unified handler
+func (h *Handler) handleMarkNotificationUnread(w http.ResponseWriter, r *http.Request) {
+	h.handleNotificationAction(w, r, ActionMarkUnread)
+}
+
+func (h *Handler) handleArchiveNotification(w http.ResponseWriter, r *http.Request) {
+	h.handleNotificationAction(w, r, ActionArchive)
+}
+
+func (h *Handler) handleUnarchiveNotification(w http.ResponseWriter, r *http.Request) {
+	h.handleNotificationAction(w, r, ActionUnarchive)
+}
+
+func (h *Handler) handleMuteNotification(w http.ResponseWriter, r *http.Request) {
+	h.handleNotificationAction(w, r, ActionMute)
+}
+
+func (h *Handler) handleUnmuteNotification(w http.ResponseWriter, r *http.Request) {
+	h.handleNotificationAction(w, r, ActionUnmute)
+}
+
+func (h *Handler) handleUnsnoozeNotification(w http.ResponseWriter, r *http.Request) {
+	h.handleNotificationAction(w, r, ActionUnsnooze)
+}
+
+func (h *Handler) handleStarNotification(w http.ResponseWriter, r *http.Request) {
+	h.handleNotificationAction(w, r, ActionStar)
+}
+
+func (h *Handler) handleUnstarNotification(w http.ResponseWriter, r *http.Request) {
+	h.handleNotificationAction(w, r, ActionUnstar)
+}
+
+func (h *Handler) handleUnfilterNotification(w http.ResponseWriter, r *http.Request) {
+	h.handleNotificationAction(w, r, ActionUnfilter)
+}
+
+// handleMarkNotificationRead marks a notification as read
+// This is kept separate because it requires a request body with lastReadTimelineEventId
 func (h *Handler) handleMarkNotificationRead(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -272,42 +310,6 @@ func (h *Handler) handleMarkNotificationRead(w http.ResponseWriter, r *http.Requ
 	}
 
 	helpers.WriteJSON(w, http.StatusOK, notificationActionResponse{Notification: notification})
-}
-
-func (h *Handler) handleMarkNotificationUnread(w http.ResponseWriter, r *http.Request) {
-	h.handleNotificationAction(w, r, ActionMarkUnread)
-}
-
-func (h *Handler) handleArchiveNotification(w http.ResponseWriter, r *http.Request) {
-	h.handleNotificationAction(w, r, ActionArchive)
-}
-
-func (h *Handler) handleUnarchiveNotification(w http.ResponseWriter, r *http.Request) {
-	h.handleNotificationAction(w, r, ActionUnarchive)
-}
-
-func (h *Handler) handleMuteNotification(w http.ResponseWriter, r *http.Request) {
-	h.handleNotificationAction(w, r, ActionMute)
-}
-
-func (h *Handler) handleUnmuteNotification(w http.ResponseWriter, r *http.Request) {
-	h.handleNotificationAction(w, r, ActionUnmute)
-}
-
-func (h *Handler) handleUnsnoozeNotification(w http.ResponseWriter, r *http.Request) {
-	h.handleNotificationAction(w, r, ActionUnsnooze)
-}
-
-func (h *Handler) handleStarNotification(w http.ResponseWriter, r *http.Request) {
-	h.handleNotificationAction(w, r, ActionStar)
-}
-
-func (h *Handler) handleUnstarNotification(w http.ResponseWriter, r *http.Request) {
-	h.handleNotificationAction(w, r, ActionUnstar)
-}
-
-func (h *Handler) handleUnfilterNotification(w http.ResponseWriter, r *http.Request) {
-	h.handleNotificationAction(w, r, ActionUnfilter)
 }
 
 // handleSnoozeNotification snoozes a notification
